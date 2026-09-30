@@ -1,0 +1,599 @@
+<meta name='viewport' content='width=device-width, initial-scale=1'/><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Barcode Product Comparison System</title>
+
+    <!-- Barcode Library -->
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f5f7;
+            color: #222;
+        }
+
+        header {
+            background: #1f2937;
+            color: white;
+            text-align: center;
+            padding: 25px 15px;
+        }
+
+        header h1 {
+            margin: 0 0 8px;
+        }
+
+        header p {
+            margin: 0;
+            color: #d1d5db;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1100px;
+            margin: 25px auto;
+        }
+
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .panel h2 {
+            margin-top: 0;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 11px;
+            border: 1px solid #ccc;
+            border-radius: 7px;
+            font-size: 15px;
+        }
+
+        button {
+            border: none;
+            padding: 12px 18px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+
+        .add-btn {
+            background: #2563eb;
+            color: white;
+        }
+
+        .search-btn {
+            background: #16a34a;
+            color: white;
+        }
+
+        .clear-btn {
+            background: #dc2626;
+            color: white;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        .search-area {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .search-area input {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+            gap: 20px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .product-card h3 {
+            margin-top: 0;
+            font-size: 22px;
+        }
+
+        .barcode {
+            width: 100%;
+            max-width: 260px;
+            margin: 10px auto;
+        }
+
+        .price {
+            font-size: 22px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .details {
+            text-align: left;
+            line-height: 1.8;
+        }
+
+        .best {
+            border: 3px solid #16a34a;
+        }
+
+        .best-label {
+            display: inline-block;
+            background: #16a34a;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .result {
+            margin-top: 15px;
+            padding: 12px;
+            background: #ecfdf5;
+            border-radius: 8px;
+            color: #166534;
+            font-weight: bold;
+        }
+
+        .empty {
+            text-align: center;
+            color: #777;
+            padding: 25px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #777;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Barcode-Based Product Comparison</h1>
+    <p>BCA Mini Project</p>
+</header>
+
+<div class="container">
+
+    <!-- Add Product -->
+    <div class="panel">
+
+        <h2>Add Product</h2>
+
+        <div class="form-grid">
+
+            <div>
+                <label>Brand Name</label>
+                <input type="text" id="brand" placeholder="Example: Hawai Copies">
+            </div>
+
+            <div>
+                <label>Product Name</label>
+                <input type="text" id="product" placeholder="Example: A4 Notebook">
+            </div>
+
+            <div>
+                <label>Price (₹)</label>
+                <input type="number" id="price" placeholder="Example: 80">
+            </div>
+
+            <div>
+                <label>Pages</label>
+                <input type="number" id="pages" placeholder="Example: 200">
+            </div>
+
+            <div>
+                <label>Quality</label>
+
+                <select id="quality">
+                    <option value="Basic">Basic</option>
+                    <option value="Good">Good</option>
+                    <option value="Premium">Premium</option>
+                </select>
+
+            </div>
+
+        </div>
+
+        <button class="add-btn" onclick="addProduct()">
+            Add Product & Generate Barcode
+        </button>
+
+    </div>
+
+
+    <!-- Barcode Search -->
+
+    <div class="panel">
+
+        <h2>Search Product by Barcode</h2>
+
+        <div class="search-area">
+
+            <input
+                type="text"
+                id="barcodeSearch"
+                placeholder="Enter barcode number"
+            >
+
+            <button class="search-btn" onclick="searchProduct()">
+                Search
+            </button>
+
+            <button class="clear-btn" onclick="clearSearch()">
+                Clear
+            </button>
+
+        </div>
+
+        <div id="searchResult"></div>
+
+    </div>
+
+
+    <!-- Comparison -->
+
+    <div class="panel">
+
+        <h2>Product Comparison</h2>
+
+        <div id="productContainer" class="product-grid"></div>
+
+    </div>
+
+</div>
+
+
+<footer>
+    BCA Barcode Comparison System
+</footer>
+
+
+<script>
+
+    /*
+        Product database
+
+        These are demo products.
+        The barcode numbers are generated for this project
+        and are NOT official retail/GS1 barcodes.
+    */
+
+    let products = [
+        {
+            brand: "Hawai Copies",
+            product: "A4 Notebook",
+            price: 80,
+            pages: 200,
+            quality: "Good",
+            barcode: "890100000001"
+        },
+
+        {
+            brand: "Smooth Notes",
+            product: "A4 Notebook",
+            price: 70,
+            pages: 180,
+            quality: "Good",
+            barcode: "890100000002"
+        },
+
+        {
+            brand: "Elegant Writer",
+            product: "A4 Notebook",
+            price: 95,
+            pages: 220,
+            quality: "Premium",
+            barcode: "890100000003"
+        }
+    ];
+
+
+    // Display all products
+
+    function displayProducts() {
+
+        const container = document.getElementById("productContainer");
+
+        container.innerHTML = "";
+
+        if (products.length === 0) {
+
+            container.innerHTML =
+                '<div class="empty">No products available.</div>';
+
+            return;
+        }
+
+
+        // Find cheapest product
+
+        let lowestPrice = Math.min(
+            ...products.map(product => product.price)
+        );
+
+
+        products.forEach((item, index) => {
+
+            const card = document.createElement("div");
+
+            card.className = "product-card";
+
+
+            // Highlight cheapest product
+
+            if (item.price === lowestPrice) {
+                card.classList.add("best");
+            }
+
+
+            card.innerHTML = `
+
+                ${
+                    item.price === lowestPrice
+                    ? '<span class="best-label">Lowest Price</span>'
+                    : ''
+                }
+
+                <h3>${item.brand}</h3>
+
+                <p>${item.product}</p>
+
+                <svg id="barcode-${index}" class="barcode"></svg>
+
+                <div class="price">
+                    ₹${item.price}
+                </div>
+
+                <div class="details">
+
+                    <strong>Pages:</strong>
+                    ${item.pages}
+
+                    <br>
+
+                    <strong>Quality:</strong>
+                    ${item.quality}
+
+                    <br>
+
+                    <strong>Barcode:</strong>
+                    ${item.barcode}
+
+                    <br>
+
+                    <strong>Price per Page:</strong>
+                    ₹${(item.price / item.pages).toFixed(2)}
+
+                </div>
+
+            `;
+
+
+            container.appendChild(card);
+
+
+            // Generate barcode
+
+            JsBarcode(
+                `#barcode-${index}`,
+                item.barcode,
+                {
+                    format: "CODE128",
+                    displayValue: true,
+                    width: 2,
+                    height: 60,
+                    margin: 10
+                }
+            );
+
+        });
+
+    }
+
+
+    // Add a new product
+
+    function addProduct() {
+
+        const brand =
+            document.getElementById("brand").value.trim();
+
+        const product =
+            document.getElementById("product").value.trim();
+
+        const price =
+            Number(document.getElementById("price").value);
+
+        const pages =
+            Number(document.getElementById("pages").value);
+
+        const quality =
+            document.getElementById("quality").value;
+
+
+        // Validation
+
+        if (!brand || !product || price <= 0 || pages <= 0) {
+
+            alert("Please enter valid product details.");
+
+            return;
+        }
+
+
+        /*
+            Generate a unique demo barcode.
+        */
+
+        const barcode =
+            "890" +
+            String(Date.now()).slice(-9);
+
+
+        products.push({
+            brand: brand,
+            product: product,
+            price: price,
+            pages: pages,
+            quality: quality,
+            barcode: barcode
+        });
+
+
+        // Clear inputs
+
+        document.getElementById("brand").value = "";
+        document.getElementById("product").value = "";
+        document.getElementById("price").value = "";
+        document.getElementById("pages").value = "";
+
+
+        displayProducts();
+
+        alert("Product added successfully!");
+
+    }
+
+
+    // Search using barcode
+
+    function searchProduct() {
+
+        const barcode =
+            document.getElementById("barcodeSearch").value.trim();
+
+
+        const result =
+            document.getElementById("searchResult");
+
+
+        if (!barcode) {
+
+            result.innerHTML =
+                '<div class="result">Please enter a barcode.</div>';
+
+            return;
+        }
+
+
+        const found =
+            products.find(item => item.barcode === barcode);
+
+
+        if (found) {
+
+            result.innerHTML = `
+
+                <div class="result">
+
+                    Product Found!
+
+                    <br><br>
+
+                    Brand:
+                    ${found.brand}
+
+                    <br>
+
+                    Product:
+                    ${found.product}
+
+                    <br>
+
+                    Price:
+                    ₹${found.price}
+
+                    <br>
+
+                    Pages:
+                    ${found.pages}
+
+                    <br>
+
+                    Quality:
+                    ${found.quality}
+
+                </div>
+
+            `;
+
+        } else {
+
+            result.innerHTML = `
+
+                <div class="result">
+
+                    No product found with this barcode.
+
+                </div>
+
+            `;
+
+        }
+
+    }
+
+
+    // Clear search
+
+    function clearSearch() {
+
+        document.getElementById("barcodeSearch").value = "";
+
+        document.getElementById("searchResult").innerHTML = "";
+
+    }
+
+
+    // Start application
+
+    displayProducts();
+
+</script>
+
+</body>
+</html>
